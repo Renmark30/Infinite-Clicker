@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite Clicker Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define CSS variables for colors */
+        :root {
+            --bg-color: #f0f4f8;
+            --text-color: #2d3748;
+            --container-bg: #ffffff;
+            --value-color: #2b6cb0;
+            --click-button-bg: #4299e1;
+            --click-button-active: #3182ce;
+            --click-button-cooldown: #63b3ed;
+            --upgrade-button-bg: #48bb78;
+            --upgrade-button-active: #38a169;
+            --auto-upgrade-button-bg: #ed8936;
+            --auto-upgrade-button-active: #dd6b20;
+            --disabled-button-bg: #a0aec0;
+            --settings-panel-bg: #f0f4f8;
+            --settings-text-color: #2d3748;
+            --settings-button-bg: #e2e8f0;
+            --settings-button-hover: #cbd5e0;
+        }
+
+        /* Light Mode (Default) */
+        .theme-light {
+            --bg-color: #f0f4f8;
+            --text-color: #2d3748;
+            --container-bg: #ffffff;
+            --value-color: #2b6cb0;
+            --click-button-bg: #4299e1;
+            --click-button-active: #3182ce;
+            --click-button-cooldown: #63b3ed;
+            --upgrade-button-bg: #48bb78;
+            --upgrade-button-active: #38a169;
+            --auto-upgrade-button-bg: #ed8936;
+            --auto-upgrade-button-active: #dd6b20;
+            --disabled-button-bg: #a0aec0;
+            --settings-panel-bg: #f0f4f8;
+            --settings-text-color: #2d3748;
+            --settings-button-bg: #e2e8f0;
+            --settings-button-hover: #cbd5e0;
+        }
+
+        /* Dark Mode */
+        .theme-dark {
+            --bg-color: #1a202c;
+            --text-color: #e2e8f0;
+            --container-bg: #2d3748;
+            --value-color: #90cdf4;
+            --click-button-bg: #63b3ed;
+            --click-button-active: #4299e1;
+            --click-button-cooldown: #90cdf4;
+            --upgrade-button-bg: #68d391;
+            --upgrade-button-active: #48bb78;
+            --auto-upgrade-button-bg: #f6ad55;
+            --auto-upgrade-button-active: #ed8936;
+            --disabled-button-bg: #4a5568;
+            --settings-panel-bg: #2d3748;
+            --settings-text-color: #e2e8f0;
+            --settings-button-bg: #4a5568;
+            --settings-button-hover: #6a768e;
+        }
+
+        /* Midnight Theme */
+        .theme-midnight {
+            --bg-color: #000000; /* Pure black background */
+            --text-color: #e0e0e0; /* Light grey text */
+            --container-bg: #1a1a1a; /* Dark grey container */
+            --value-color: #cccccc; /* Medium grey for values */
+            --click-button-bg: #333333; /* Dark grey buttons */
+            --click-button-active: #555555; /* Medium grey on active */
+            --click-button-cooldown: #444444; /* Slightly lighter dark grey during cooldown */
+            --upgrade-button-bg: #333333;
+            --upgrade-button-active: #555555;
+            --auto-upgrade-button-bg: #333333;
+            --auto-upgrade-button-active: #555555;
+            --disabled-button-bg: #222222; /* Even darker grey for disabled */
+            --settings-panel-bg: #1a1a1a;
+            --settings-text-color: #e0e0e0;
+            --settings-button-bg: #222222;
+            --settings-button-hover: #444444;
+        }
+
+        /* Purple Theme */
+        .theme-purple {
+            --bg-color: #2c004c;
+            --text-color: #d4c1f9;
+            --container-bg: #3e006e;
+            --value-color: #a78bfa;
+            --click-button-bg: #6a0dad;
+            --click-button-active: #5a0ca0;
+            --click-button-cooldown: #8a2be2;
+            --upgrade-button-bg: #8a2be2;
+            --upgrade-button-active: #7a1dd1;
+            --auto-upgrade-button-bg: #9370db;
+            --auto-upgrade-button-active: #8360c1;
+            --disabled-button-bg: #5c0099;
+            --settings-panel-bg: #3e006e;
+            --settings-text-color: #d4c1f9;
+            --settings-button-bg: #5c0099;
+            --settings-button-hover: #7b00cc;
+        }
+
+
+        body {
+            font-family: 'Times New Roman', Times, serif; /* Changed font to Times New Roman */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .game-container {
+            background-color: var(--container-bg);
+            padding: 1.5rem; /* Reduced padding */
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            max-width: 95%;
+            width: 700px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem; /* Reduced gap between main sections */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .game-button {
+            padding: 1rem 2rem;
+            font-size: 1.25rem;
+            font-weight: bold;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            color: white; /* All game buttons have white text */
+            border: none;
+        }
+        .game-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px -1px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+        }
+        .click-button {
+            background-color: var(--click-button-bg);
+        }
+        .click-button:active {
+            background-color: var(--click-button-active);
+        }
+        .click-button.cooldown {
+            background-color: var(--click-button-cooldown);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .upgrade-button {
+            background-color: var(--upgrade-button-bg);
+        }
+        .upgrade-button:disabled {
+            background-color: var(--disabled-button-bg);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .upgrade-button:active {
+            background-color: var(--upgrade-button-active);
+        }
+        .auto-upgrade-button {
+            background-color: var(--auto-upgrade-button-bg);
+        }
+        .auto-upgrade-button:disabled {
+            background-color: var(--disabled-button-bg);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .auto-upgrade-button:active {
+            background-color: var(--auto-upgrade-button-active);
+        }
+        .info-text {
+            font-size: 1.1rem;
+            margin-bottom: 0; /* Set to 0 to be close to value-display */
+            color: var(--text-color);
+        }
+        .value-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--value-color);
+            margin-top: 0; /* Set to 0 to be close to info-text */
+        }
+        .upgrade-sections-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem; /* Reduced gap */
+            justify-content: space-around;
+            align-items: center;
+        }
+        @media (min-width: 768px) {
+            .upgrade-sections-wrapper {
+                flex-direction: row;
+            }
+            .upgrade-section {
+                flex: 1;
+            }
+        }
+
+        /* Settings Panel Styles */
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent overlay */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Ensure it's on top */
+            visibility: hidden; /* Hidden by default */
+            opacity: 0;
+            transition: visibility 0.3s, opacity 0.3s ease;
+        }
+        .settings-panel.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .settings-content {
+            background-color: var(--settings-panel-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            color: var(--settings-text-color);
+        }
+        .settings-content h2 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: var(--settings-text-color);
+        }
+        .theme-buttons-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+        .theme-button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            border: 1px solid var(--settings-text-color);
+            background-color: var(--settings-button-bg);
+            color: var(--settings-text-color);
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+        .theme-button:hover {
+            background-color: var(--settings-button-hover);
+        }
+        .theme-button.active-theme {
+            background-color: var(--value-color); /* Use a prominent color for active theme */
+            color: white;
+            border-color: var(--value-color);
+        }
+        .theme-button.locked-theme { /* Style for locked themes */
+            background-color: var(--disabled-button-bg);
+            cursor: not-allowed;
+            opacity: 0.7;
+            border-color: var(--disabled-button-bg);
+        }
+        .close-settings-button {
+            margin-top: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            background-color: #ef4444; /* Red for close */
+            color: white;
+            border: none;
+            transition: background-color 0.2s ease;
+        }
+        .close-settings-button:hover {
+            background-color: #dc2626;
+        }
+    </style>
+</head>
+<body class="theme-light">
+    <div class="game-container">
+        <h1 class="text-3xl font-extrabold mb-0">Infinite Clicker</h1>
+        <p class="text-xl text-gray-600 mt-0 mb-4">It never ends!</p>
+
+        <div class="info-text mb-0">Clicks:</div>
+        <div id="clicksDisplay" class="value-display mt-0 mb-4">0</div>
+
+        <button id="clickButton" class="game-button click-button">
+            Click Me!
+        </button>
+
+        <div class="upgrade-sections-wrapper">
+            <div class="upgrade-section">
+                <div class="info-text">Clicks per Click:</div>
+                <div id="clicksPerClickDisplay" class="value-display">1</div>
+
+                <div class="info-text">Upgrade Cost:</div>
+                <div id="upgradeCostDisplay" class="value-display">10</div>
+
+                <button id="upgradeButton" class="game-button upgrade-button">
+                    Buy Upgrade
+                </button>
+            </div>
+
+            <div class="upgrade-section">
+                <div class="info-text">Clicks per Second (Auto):</div>
+                <div id="autoClicksPerSecondDisplay" class="value-display">0</div>
+
+                <div class="info-text">Auto Upgrade Cost:</div>
+                <div id="autoUpgradeCostDisplay" class="value-display">100</div>
+
+                <button id="autoUpgradeButton" class="game-button auto-upgrade-button">
+                    Buy Auto Upgrade
+                </button>
+            </div>
+        </div>
+
+        <button id="settingsButton" class="game-button bg-gray-600 hover:bg-gray-700 text-white mt-4">
+            Settings
+        </button>
+    </div>
+
+    <div id="settingsPanel" class="settings-panel">
+        <div class="settings-content">
+            <h2>Settings</h2>
+            <div class="info-text">Choose Theme:</div>
+            <div class="theme-buttons-wrapper">
+                <button class="theme-button" data-theme="light">Light Mode</button>
+                <button class="theme-button" data-theme="dark">Dark Mode</button>
+                <button class="theme-button" data-theme="midnight">Midnight</button>
+                <button class="theme-button" data-theme="purple">Purple</button>
+            </div>
+            <button id="closeSettingsButton" class="close-settings-button">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state variables
+        let clicks = 0;
+        let clicksPerClick = 1;
+        let upgradeCost = 10;
+        let upgradeMultiplier = 1.5; // How much clicksPerClick increases
+        let costMultiplier = 1.7;    // How much upgradeCost increases
+
+        // Automation state variables
+        let autoClicksPerSecond = 0; // Direct value for auto clicks per second
+        let autoUpgradeCost = 100;
+        let autoUpgradeMultiplier = 1.65; // Multiplier for autoClicksPerSecond from auto upgrade
+        let autoCostMultiplier = 1.5;    // How much autoUpgradeCost increases
+        const baseAutoClicksValue = 1;   // Initial value for autoClicksPerSecond on first auto purchase
+
+        const autoClickInterval = 100; // Interval in milliseconds for auto-clicking
+
+        // Cooldown for manual clicks
+        let isClickButtonDisabled = false;
+        const clickCooldownTime = 80; // 0.08 seconds in milliseconds
+
+        // Theme unlock requirements
+        const purpleThemeUnlockClicks = 10000; // Clicks required to unlock the 'Purple' theme
+
+        // Get DOM elements
+        const clicksDisplay = document.getElementById('clicksDisplay');
+        const clicksPerClickDisplay = document.getElementById('clicksPerClickDisplay');
+        const upgradeCostDisplay = document.getElementById('upgradeCostDisplay');
+        const clickButton = document.getElementById('clickButton');
+        const upgradeButton = document.getElementById('upgradeButton');
+
+        const autoClicksPerSecondDisplay = document.getElementById('autoClicksPerSecondDisplay');
+        const autoUpgradeCostDisplay = document.getElementById('autoUpgradeCostDisplay');
+        const autoUpgradeButton = document.getElementById('autoUpgradeButton');
+
+        const settingsButton = document.getElementById('settingsButton');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const closeSettingsButton = document.getElementById('closeSettingsButton');
+        const themeButtons = document.querySelectorAll('.theme-button');
+        const body = document.body;
+
+        // Get specific theme button for locking
+        const purpleThemeButton = document.querySelector('.theme-button[data-theme="purple"]');
+
+
+        /**
+         * Updates all display elements with the current game state.
+         */
+        function updateDisplay() {
+            clicksDisplay.textContent = Math.floor(clicks);
+            clicksPerClickDisplay.textContent = Math.floor(clicksPerClick);
+            upgradeCostDisplay.textContent = Math.floor(upgradeCost);
+
+            autoClicksPerSecondDisplay.textContent = autoClicksPerSecond.toFixed(1);
+            autoUpgradeCostDisplay.textContent = Math.floor(autoUpgradeCost);
+
+            // Enable/disable upgrade button based on clicks
+            if (clicks >= upgradeCost) {
+                upgradeButton.disabled = false;
+            } else {
+                upgradeButton.disabled = true;
+            }
+
+            // Enable/disable auto upgrade button based on clicks
+            if (clicks >= autoUpgradeCost) {
+                autoUpgradeButton.disabled = false;
+            } else {
+                autoUpgradeButton.disabled = true;
+            }
+
+            // Handle click button cooldown state
+            if (isClickButtonDisabled) {
+                clickButton.disabled = true;
+                clickButton.classList.add('cooldown');
+            } else {
+                clickButton.disabled = false;
+                clickButton.classList.remove('cooldown');
+            }
+
+            // Handle Purple theme unlock
+            if (clicks >= purpleThemeUnlockClicks) {
+                purpleThemeButton.disabled = false;
+                purpleThemeButton.classList.remove('locked-theme');
+                purpleThemeButton.title = ''; // Clear title if unlocked
+            } else {
+                purpleThemeButton.disabled = true;
+                purpleThemeButton.classList.add('locked-theme');
+                purpleThemeButton.title = `Unlock at ${purpleThemeUnlockClicks} clicks`; // Add tooltip
+            }
+        }
+
+        /**
+         * Handles the click button action.
+         * Adds clicksPerClick to total clicks and updates the display.
+         * Implements a cooldown for the click button.
+         */
+        function handleClick() {
+            if (isClickButtonDisabled) {
+                return; // Do nothing if button is on cooldown
+            }
+
+            clicks += clicksPerClick;
+            isClickButtonDisabled = true; // Start cooldown
+            updateDisplay(); // Update display to show cooldown state
+
+            setTimeout(() => {
+                isClickButtonDisabled = false; // End cooldown
+                updateDisplay(); // Update display to remove cooldown state
+            }, clickCooldownTime);
+        }
+
+        /**
+         * Handles the general upgrade button action.
+         * Checks if enough clicks are available, deducts cost,
+         * increases clicksPerClick and upgradeCost.
+         * Then updates display.
+         */
+        function buyUpgrade() {
+            if (clicks >= upgradeCost) {
+                clicks -= upgradeCost;
+                clicksPerClick *= upgradeMultiplier; // Increase clicks per click
+                upgradeCost *= costMultiplier;       // Increase upgrade cost
+                updateDisplay();
+            } else {
+                console.log("Not enough clicks for upgrade!");
+            }
+        }
+
+        /**
+         * Handles the auto upgrade button action.
+         * Checks if enough clicks are available, deducts cost,
+         * initializes autoClicksPerSecond if it's the first purchase,
+         * otherwise multiplies autoClicksPerSecond by autoUpgradeMultiplier.
+         * Then updates display.
+         */
+        function buyAutoUpgrade() {
+            if (clicks >= autoUpgradeCost) {
+                clicks -= autoUpgradeCost;
+                if (autoClicksPerSecond === 0) {
+                    // First auto upgrade purchase initializes autoClicksPerSecond to a base value
+                    autoClicksPerSecond = baseAutoClicksValue;
+                } else {
+                    // Subsequent auto upgrades multiply the current autoClicksPerSecond
+                    autoClicksPerSecond *= autoUpgradeMultiplier;
+                }
+                autoUpgradeCost *= autoCostMultiplier;        // Increase auto upgrade cost
+                updateDisplay();
+            } else {
+                console.log("Not enough clicks for auto upgrade!");
+            }
+        }
+
+        /**
+         * Generates clicks automatically based on the current auto clicks per second.
+         * This function is called repeatedly by setInterval.
+         */
+        function generateAutoClicks() {
+            clicks += (autoClicksPerSecond / (1000 / autoClickInterval)); // Add a fraction of total auto clicks per second
+            updateDisplay();
+        }
+
+        /**
+         * Opens the settings panel.
+         */
+        function openSettings() {
+            settingsPanel.classList.add('active');
+            updateActiveThemeButton(); // Highlight the currently active theme
+        }
+
+        /**
+         * Closes the settings panel.
+         */
+        function closeSettings() {
+            settingsPanel.classList.remove('active');
+        }
+
+        /**
+         * Applies the selected theme to the body.
+         * @param {string} themeName - The name of the theme (e.g., 'light', 'dark').
+         */
+        function applyTheme(themeName) {
+            // Check if the theme is 'purple' and if it's unlocked
+            if (themeName === 'purple' && clicks < purpleThemeUnlockClicks) {
+                // If not unlocked, do not apply theme and potentially show a message (optional)
+                console.log("Purple theme is locked! Requires " + purpleThemeUnlockClicks + " clicks.");
+                return;
+            }
+
+            // Remove all existing theme classes
+            body.classList.remove('theme-light', 'theme-dark', 'theme-midnight', 'theme-purple');
+            // Add the selected theme class
+            body.classList.add(`theme-${themeName}`);
+            localStorage.setItem('selectedTheme', themeName); // Save theme preference
+            updateActiveThemeButton();
+        }
+
+        /**
+         * Updates the 'active-theme' class on theme buttons based on the current body class.
+         */
+        function updateActiveThemeButton() {
+            const currentTheme = body.classList.value.split(' ').find(cls => cls.startsWith('theme-'))?.replace('theme-', '');
+            themeButtons.forEach(button => {
+                if (button.dataset.theme === currentTheme) {
+                    button.classList.add('active-theme');
+                } else {
+                    button.classList.remove('active-theme');
+                }
+            });
+        }
+
+        // Add event listeners to buttons
+        clickButton.addEventListener('click', handleClick);
+        upgradeButton.addEventListener('click', buyUpgrade);
+        autoUpgradeButton.addEventListener('click', buyAutoUpgrade);
+        settingsButton.addEventListener('click', openSettings);
+        closeSettingsButton.addEventListener('click', closeSettings);
+
+        themeButtons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                const theme = event.target.dataset.theme;
+                applyTheme(theme);
+            });
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Space') {
+                event.preventDefault();
+                handleClick();
+            }
+        });
+
+        // Start the auto-clicker interval
+        setInterval(generateAutoClicks, autoClickInterval);
+
+        // Initial setup when the page loads
+        window.onload = function() {
+            // Load saved theme preference
+            const savedTheme = localStorage.getItem('selectedTheme');
+            if (savedTheme) {
+                // If the saved theme is purple but not unlocked, revert to light
+                if (savedTheme === 'purple' && clicks < purpleThemeUnlockClicks) {
+                    applyTheme('light');
+                } else {
+                    applyTheme(savedTheme);
+                }
+            } else {
+                applyTheme('light'); // Apply default light theme if no preference saved
+            }
+            updateDisplay(); // Ensure display is updated to reflect locked/unlocked state
+        };
+    </script>
+</body>
+</html>
